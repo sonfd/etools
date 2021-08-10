@@ -1,0 +1,5 @@
+name: Eric tools
+description: A small collection of utilities and plugins for developers and site builders.
+type: module
+core_version_requirement: ^9
+package: Eric tool suite
