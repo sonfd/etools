@@ -1,0 +1,9 @@
+services:
+  etools.entity:
+    class: Drupal\etools\EtoolsEntity
+    arguments: []
+  etools.twig_extension:
+    class: Drupal\etools\EtoolsTwigExtension
+    arguments: ['@etools.entity']
+    tags:
+      - { name: twig.extension }
