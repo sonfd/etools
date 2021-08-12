@@ -2,7 +2,6 @@
 
 namespace Drupal\etools;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -37,34 +36,9 @@ class EtoolsTwigExtension extends AbstractExtension {
    */
   public function getFunctions(): array {
     return [
-      new TwigFunction('etools_field_value', [$this, 'getFieldValue']),
+      new TwigFunction('etools_field_value', [$this->etoolsEntity, 'getFieldValue']),
+      new TwigFunction('etools_field_display', [$this->etoolsEntity, 'getFieldDisplay'])
     ];
-  }
-
-  /**
-   * Wrapper for the `etools.entity` service's getFieldValue() method.
-   *
-   * @see \Drupal\etools\EtoolsEntity::getFieldValue()
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   A content entity.
-   * @param string $field_name
-   *   E.g. body, or field_tags. The field machine name to get a value for.
-   * @param string $property_name
-   *   E.g target_id, value. The property that contains the "value" for the
-   *   field. For fields with only one relevant property, fields that implement
-   *   the getMainPropertyName() method, we can determine this automatically.
-   *
-   * @return mixed|null
-   *   - NULL if the field doesn't exist on the entity.
-   *   - If the the field allows a single value, the value or NULL.
-   *   - If the field allows multiple values, an array of values or empty array.
-   *
-   * @throws \Exception
-   */
-  public function getFieldValue(ContentEntityInterface $entity, string $field_name, string $property_name = '') {
-    return $this->etoolsEntity
-      ->getFieldValue($entity, $field_name, $property_name);
   }
 
 }
