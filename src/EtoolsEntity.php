@@ -2,6 +2,7 @@
 
 namespace Drupal\etools;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
@@ -56,5 +57,35 @@ class EtoolsEntity {
     else {
       return $values;
     }
+  }
+
+  /**
+   * Render $entity's $field_name field with $display_settings.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   A content entity.
+   * @param string $field_name
+   *   E.g. body, or field_tags. The field machine name to display.
+   * @param string|array $display_options
+   *   A view mode machine name or a field display configuration array. Defaults
+   *   to the 'default' view mode.
+   *
+   * @return array
+   *   A render array.
+   */
+  public function getFieldDisplay(ContentEntityInterface $entity, string $field_name, $display_options = 'default'): array {
+    $access = $entity->access('view', NULL, TRUE);
+
+    $field_display = [];
+    if ($access->isAllowed() && $entity->hasField($field_name)) {
+      $field_display = $entity->get($field_name)->view($display_options);
+    }
+
+    CacheableMetadata::createFromRenderArray($field_display)
+      ->merge(CacheableMetadata::createFromObject($access))
+      ->merge(CacheableMetadata::createFromObject($entity))
+      ->applyTo($field_display);
+
+    return $field_display;
   }
 }
