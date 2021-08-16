@@ -50,7 +50,14 @@ class EtoolsEntity {
       throw new \Exception("No property_name passed to \Drupal::service('etools.entity')->getFieldValue() and a property_name can't be determined automatically.");
     }
 
-    $values = array_column($entity->get($field_name)->getValue(), $property_name);
+    $values = [];
+    for ($i = 0; $i < $entity->get($field_name)->count(); $i++) {
+      $val = $entity->get($field_name)->get($i)->{$property_name};
+      if (!is_null($val)) {
+        $values[] = $val;
+      }
+    }
+
     if ($cardinality === 1) {
       return empty($values) ? NULL : reset($values);
     }
