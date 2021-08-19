@@ -28,7 +28,7 @@ class EtoolsEntity {
    *
    * @return mixed|null
    *   - NULL if the field doesn't exist on the entity.
-   *   - If the the field allows a single value, the value or NULL.
+   *   - If the field allows a single value, the value or NULL.
    *   - If the field allows multiple values, an array of values or empty array.
    *
    * @throws \Exception
