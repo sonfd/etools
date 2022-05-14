@@ -3,7 +3,7 @@
 namespace Drupal\etools;
 
 use Drupal\Core\Cache\CacheableMetadata;
-use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 
 /**
  * The Etools Entity (etools.entity) service.
@@ -12,28 +12,12 @@ use Drupal\Core\Entity\ContentEntityInterface;
  *
  * @package Drupal\etools
  */
-class EtoolsEntity {
+class EtoolsEntity implements EtoolsEntityInterface {
 
   /**
-   * Get $entity's $field_name field values.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   A content entity.
-   * @param string $field_name
-   *   E.g. body, or field_tags. The field machine name to get a value for.
-   * @param string $property_name
-   *   E.g target_id, value. The property that contains the "value" for the
-   *   field. For fields with only one relevant property, fields that implement
-   *   the getMainPropertyName() method, we can determine this automatically.
-   *
-   * @return mixed|null
-   *   - NULL if the field doesn't exist on the entity.
-   *   - If the field allows a single value, the value or NULL.
-   *   - If the field allows multiple values, an array of values or empty array.
-   *
-   * @throws \Exception
+   * {@inheritdoc}
    */
-  public function getFieldValue(ContentEntityInterface $entity, string $field_name, string $property_name = '') {
+  public function getFieldValue(FieldableEntityInterface $entity, string $field_name, string $property_name = '') {
     // If the entity doesn't have the field, exit early.
     if (!$entity->hasField($field_name)) {
       return NULL;
@@ -46,14 +30,14 @@ class EtoolsEntity {
 
     $cardinality = $field_storage_definition->getCardinality();
     $property_name = !empty($property_name) ? $property_name : $field_storage_definition->getMainPropertyName();
-    if (empty($property_name)) {
-      throw new \Exception("No property_name passed to \Drupal::service('etools.entity')->getFieldValue() and a property_name can't be determined automatically.");
-    }
 
     $values = [];
     for ($i = 0; $i < $entity->get($field_name)->count(); $i++) {
-      $val = $entity->get($field_name)->get($i)->{$property_name};
-      if (!is_null($val)) {
+      $val = !empty($property_name)
+        ? $entity->get($field_name)->get($i)->{$property_name}
+        : $entity->get($field_name)->get($i)->getValue();
+
+      if (!is_null($val) && $val != []) {
         $values[] = $val;
       }
     }
@@ -67,20 +51,9 @@ class EtoolsEntity {
   }
 
   /**
-   * Render $entity's $field_name field with $display_settings.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   A content entity.
-   * @param string $field_name
-   *   E.g. body, or field_tags. The field machine name to display.
-   * @param string|array $display_options
-   *   A view mode machine name or a field display configuration array. Defaults
-   *   to the 'default' view mode.
-   *
-   * @return array
-   *   A render array.
+   * {@inheritdoc}
    */
-  public function getFieldDisplay(ContentEntityInterface $entity, string $field_name, $display_options = 'default'): array {
+  public function getFieldDisplay(FieldableEntityInterface $entity, string $field_name, $display_options = 'default'): array {
     $access = $entity->access('view', NULL, TRUE);
 
     $field_display = [];
@@ -95,4 +68,5 @@ class EtoolsEntity {
 
     return $field_display;
   }
+
 }
